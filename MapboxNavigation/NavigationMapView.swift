@@ -120,6 +120,13 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
     @objc dynamic public var buildingDefaultColor: UIColor = .defaultBuildingColor
     @objc dynamic public var buildingHighlightColor: UIColor = .defaultBuildingHighlightColor
     
+    @objc dynamic public var reducedAccuracyActivatedMode: Bool = false {
+        didSet {
+            self.userCourseView = reducedAccuracyActivatedMode ? UserHaloCourseView(frame: CGRect(origin: .zero, size: 75.0)) : UserPuckCourseView(frame: CGRect(origin: .zero, size: 75.0))
+            //TODO: add the weak gps connection banner below
+        }
+    }
+    
     var userLocationForCourseTracking: CLLocation?
     var animatesUserLocation: Bool = false
     var altitude: CLLocationDistance
@@ -207,7 +214,8 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
      
      The `UserCourseView`'s `UserCourseView.update(location:pitch:direction:animated:)` method is frequently called to ensure that its visual appearance matches the map’s camera.
      */
-    public var userCourseView: UserCourseView = UserPuckCourseView(frame: CGRect(origin: .zero, size: 75.0)) {
+    
+    public var userCourseView: UIView & CourseUpdatable {
         didSet {
             oldValue.removeFromSuperview()
             installUserCourseView()
@@ -220,18 +228,22 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
     
     public override init(frame: CGRect) {
         altitude = defaultAltitude
+        userCourseView = reducedAccuracyActivatedMode ? UserHaloCourseView(frame: CGRect(origin: .zero, size: 75.0)) : UserPuckCourseView(frame: CGRect(origin: .zero, size: 75.0))
+        
         super.init(frame: frame)
         commonInit()
     }
     
     public required init?(coder decoder: NSCoder) {
         altitude = defaultAltitude
+        userCourseView = reducedAccuracyActivatedMode ? UserHaloCourseView(frame: CGRect(origin: .zero, size: 75.0)) : UserPuckCourseView(frame: CGRect(origin: .zero, size: 75.0))
         super.init(coder: decoder)
         commonInit()
     }
     
     public override init(frame: CGRect, styleURL: URL?) {
         altitude = defaultAltitude
+        userCourseView = reducedAccuracyActivatedMode ? UserHaloCourseView(frame: CGRect(origin: .zero, size: 75.0)) : UserPuckCourseView(frame: CGRect(origin: .zero, size: 75.0))
         super.init(frame: frame, styleURL: styleURL)
         commonInit()
     }
@@ -246,6 +258,7 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
         addGestureRecognizer(mapTapGesture)
         
         installUserCourseView()
+        showsUserLocation = false
     }
     
     open override func layoutMarginsDidChange() {
@@ -270,8 +283,13 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
         super.layoutSubviews()
         
         //If the map is in tracking mode, make sure we update the camera after the layout pass.
-        if (tracksUserCourse) {
-            updateCourseTracking(location: userLocationForCourseTracking, camera:self.camera, animated: false)
+        if (tracksUserCourse) {            
+            if #available(iOS 14.0, *) {
+                // Since layoutSubviews() is called too often on iOS 14.0, it leads to lags in `UserCourseView` animated updates.
+                // Workaround is to allow `UserCourseView` updates only on iOS versions lower than 14.0.
+            } else {
+                updateCourseTracking(location: userLocationForCourseTracking, camera:self.camera, animated: false)
+            }
         }
     }
     
@@ -368,6 +386,7 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
             // Animate course view updates in overview mode
             UIView.animate(withDuration: duration, delay: 0, options: [.curveLinear], animations: centerUserCourseView)
         }
+        
         
         userCourseView.update(location: location, pitch: self.camera.pitch, direction: direction, animated: animated, tracksUserCourse: tracksUserCourse)
     }
@@ -531,6 +550,14 @@ open class NavigationMapView: MGLMapView, UIGestureRecognizerDelegate {
             var parentLayer: MGLStyleLayer? = nil
             for layer in style.layers.reversed() {
                 if !(layer is MGLSymbolStyleLayer) && !identifiers.contains(layer.identifier) {
+                    // MGLMapView automatically adds an MGLLineStyleLayer or MGLFillStyleLayer to the top of the layer stack when adding a polyline or polygon annotation, respectively. There’s no way to insert them lower in the layer stack, so they aren’t good indicators of where to insert the route line.
+                    // Detect and skip such a layer by checking if its source lacks a dedicated MGLSource subclass.
+                    if let vectorLayer = layer as? MGLVectorStyleLayer,
+                       let sourceIdentifier = vectorLayer.sourceIdentifier,
+                       let source = style.source(withIdentifier: sourceIdentifier), type(of: source) == MGLSource.self {
+                        continue
+                    }
+                    
                     parentLayer = layer
                     break
                 }

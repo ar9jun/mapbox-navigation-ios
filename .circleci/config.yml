@@ -54,7 +54,8 @@ step-library:
       run:
         name: Update Carthage version
         command: |
-          brew update && brew upgrade carthage
+          curl -OL "https://github.com/Carthage/Carthage/releases/download/0.36.0/Carthage.pkg"
+          sudo installer -pkg Carthage.pkg -target /
 
   - &verify-missing-localizable-strings
       run:
@@ -258,6 +259,17 @@ workflows:
           iOS: "10.3.1"
           test: false
           device: "iPhone 7 Plus"
+      - pod-job:
+          name: "Xcode_12.0_iOS_14.0_CP_install"
+          update: false
+          xcode: "12.0.0"
+          iOS: "14.0"
+      - pod-job:
+          name: "Xcode_12.0_iOS_14.0_CP_update"
+          update: true
+          xcode: "12.0.0"
+          iOS: "14.0"
+          lint: true
       - pod-job:
           name: "Xcode_11.4.1_iOS_12.2_CP_install"
           update: false
