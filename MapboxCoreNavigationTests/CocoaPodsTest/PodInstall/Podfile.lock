@@ -19,7 +19,7 @@ PODS:
     - MapboxMobileEvents (~> 0.10.2)
     - MapboxSpeech (~> 1.0)
     - Solar (~> 2.1)
-    - MapboxNavigationNative (22.0.4):
+  - MapboxNavigationNative (22.0.4):
     - MapboxCommon (= 7.1.0)
   - MapboxSpeech (1.0.0)
   - Polyline (4.2.1)
