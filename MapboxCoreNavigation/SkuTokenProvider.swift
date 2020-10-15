@@ -1,6 +1,7 @@
 import Foundation
 import MapboxDirections
 import MapboxNavigationNative
+import MapboxCommon
 
 class SkuTokenProvider: SkuTokenSource {
     var peer: MBXPeerWrapper?
