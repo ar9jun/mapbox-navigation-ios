@@ -523,7 +523,7 @@ open class NavigationViewController: UIViewController {
      If the `NavigationViewController` is already in the stack, it will open the `StepsViewController` unless it is already open.
      */
     @available(iOS 12.0, *)
-    public class func carPlayManager(_ carPlayManager: CarPlayManager, didBeginNavigationWith navigationService: NavigationService, window: UIWindow) {
+    @objc public class func carPlayManager(_ carPlayManager: CarPlayManager, didBeginNavigationWith navigationService: NavigationService, window: UIWindow) {
         
         if let navigationViewController = window.viewControllerInStack(of: NavigationViewController.self) {
             // Open StepsViewController on iPhone if NavigationViewController is being presented
@@ -552,7 +552,7 @@ open class NavigationViewController: UIViewController {
      Dismisses a `NavigationViewController` if there is any in the navigation stack.
      */
     @available(iOS 12.0, *)
-    public class func carPlayManagerDidEndNavigation(_ carPlayManager: CarPlayManager, window: UIWindow) {
+    @objc public class func carPlayManagerDidEndNavigation(_ carPlayManager: CarPlayManager, window: UIWindow) {
         if let navigationViewController = window.viewControllerInStack(of: NavigationViewController.self) {
             navigationViewController.dismiss(animated: true, completion: nil)
         }
