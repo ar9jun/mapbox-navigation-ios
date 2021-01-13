@@ -29,7 +29,7 @@ public enum CarPlayActivity: Int {
 @objc(MBCarPlayManager)
 public class CarPlayManager: NSObject {
 
-    public fileprivate(set) var interfaceController: CPInterfaceController?
+    @objc public fileprivate(set) var interfaceController: CPInterfaceController?
     public fileprivate(set) var carWindow: UIWindow?
 
     /**
@@ -249,7 +249,72 @@ extension CarPlayManager: CPApplicationDelegate {
             mapTemplate.dismissPanningInterface(animated: false)
         }
     }
+    
+    @objc public func beginNavigationWithCarPlay(using navigationService: NavigationService) {
+        let route = navigationService.route
+        let routeOptions = navigationService.route.routeOptions
+        
+        var trip = CPTrip(routes: [route], routeOptions: routeOptions, waypoints: routeOptions.waypoints)
+//        trip = delegate?.carPlayManager(self, willPreview: trip) ?? trip
+        
+        self.navigationService = navigationService
+        
+        if let mapTemplate = mainMapTemplate, let routeChoice = trip.routeChoices.first {
+            self.mapTemplate(mapTemplate, startedTrip: trip, using: routeChoice)
+        }
+    }
+
 }
+
+@available(iOS 12.0, *)
+extension CPTrip {
+    static let fullDateComponentsFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .full
+        formatter.allowedUnits = [.day, .hour, .minute]
+        return formatter
+    }()
+    
+    static let shortDateComponentsFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .short
+        formatter.allowedUnits = [.day, .hour, .minute]
+        return formatter
+    }()
+    
+    static let briefDateComponentsFormatter: DateComponentsFormatter = {
+        let formatter = DateComponentsFormatter()
+        formatter.unitsStyle = .brief
+        formatter.allowedUnits = [.day, .hour, .minute]
+        return formatter
+    }()
+    
+    convenience init(routes: [Route], routeOptions: RouteOptions, waypoints: [Waypoint]) {
+        let routeChoices = routes.enumerated().map { (routeIndex, route) -> CPRouteChoice in
+            let summaryVariants = [
+                CPTrip.fullDateComponentsFormatter.string(from: route.expectedTravelTime)!,
+                CPTrip.shortDateComponentsFormatter.string(from: route.expectedTravelTime)!,
+                CPTrip.briefDateComponentsFormatter.string(from: route.expectedTravelTime)!
+            ]
+            let routeChoice = CPRouteChoice(summaryVariants: summaryVariants,
+                                            additionalInformationVariants: [route.description],
+                                            selectionSummaryVariants: [route.description])
+            let info: (Route, Int, RouteOptions) = (route: route, routeIndex: routeIndex, options: routeOptions)
+            routeChoice.userInfo = route
+            return routeChoice
+        }
+        
+        let waypoints = routeOptions.waypoints
+        let origin = MKMapItem(placemark: MKPlacemark(coordinate: waypoints.first!.coordinate))
+        origin.name = waypoints.first?.name
+        let destination = MKMapItem(placemark: MKPlacemark(coordinate: waypoints.last!.coordinate))
+        destination.name = waypoints.last?.name
+        
+        self.init(origin: origin, destination: destination, routeChoices: routeChoices)
+        userInfo = routeOptions
+    }
+}
+
 
 // MARK: CPInterfaceControllerDelegate
 @available(iOS 12.0, *)
@@ -320,6 +385,7 @@ extension CarPlayManager: CPListTemplateDelegate {
         previewRoutes(for: options, completionHandler: completionHandler)
     }
     
+    @objc
     public func previewRoutes(for options: RouteOptions, completionHandler: @escaping CompletionHandler) {
         calculate(options) { [weak self] (waypoints, routes, error) in
             self?.didCalculate(routes,
@@ -348,7 +414,8 @@ extension CarPlayManager: CPListTemplateDelegate {
         if let error = error {
             let okTitle = NSLocalizedString("CARPLAY_OK", bundle: .mapboxNavigation, value: "OK", comment: "CPNavigationAlert OK button title")
             let okAction = CPAlertAction(title: okTitle, style: .default) { _ in
-                interfaceController.popToRootTemplate(animated: true)
+//                interfaceController.popToRootTemplate(animated: true)
+                self.popToRootTemplate(interfaceController: interfaceController, animated: true)
             }
             let alert = CPNavigationAlert(titleVariants: [error.localizedDescription],
                                           subtitleVariants: [error.localizedFailureReason ?? ""],
@@ -429,7 +496,9 @@ extension CarPlayManager: CPMapTemplateDelegate {
             service.simulationSpeedMultiplier = simulatedSpeedMultiplier
         }
 
-        interfaceController.popToRootTemplate(animated: false)
+//        interfaceController.popToRootTemplate(animated: false)
+        popToRootTemplate(interfaceController: interfaceController, animated: true)
+
         let navigationMapTemplate = self.mapTemplate(forNavigating: trip)
         interfaceController.setRootTemplate(navigationMapTemplate, animated: true)
 
@@ -624,6 +693,14 @@ extension CarPlayManager: CPMapTemplateDelegate {
         let shiftedCenterCoordinate = mapView.centerCoordinate.coordinate(at: distance, facing: shiftedDirection)
         mapView.setCenter(shiftedCenterCoordinate, animated: true)
     }
+    
+    private func popToRootTemplate(interfaceController: CPInterfaceController?, animated: Bool) {
+        guard let interfaceController = interfaceController else { return }
+
+        if interfaceController.templates.count > 1 {
+            interfaceController.popToRootTemplate(animated: animated)
+        }
+    }
 
 }
 
@@ -638,7 +715,9 @@ extension CarPlayManager: CarPlayNavigationDelegate {
         if let mainMapTemplate = mainMapTemplate {
             interfaceController?.setRootTemplate(mainMapTemplate, animated: true)
         }
-        interfaceController?.popToRootTemplate(animated: true)
+//        interfaceController?.popToRootTemplate(animated: true)
+        popToRootTemplate(interfaceController: interfaceController, animated: true)
+
         delegate?.carPlayManagerDidEndNavigation(self)
     }
 }
