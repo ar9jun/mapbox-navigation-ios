@@ -57,7 +57,7 @@ open class RectangularRegion: CLRegion, Codable {
     
     #if swift(>=4.2)
     #else
-    @objc open override var hashValue: Int {
+    @objc open override var hash: Int {
         return (southWest.latitude.hashValue + southWest.longitude.hashValue + northEast.latitude.hashValue + northEast.longitude.hashValue)
     }
     #endif

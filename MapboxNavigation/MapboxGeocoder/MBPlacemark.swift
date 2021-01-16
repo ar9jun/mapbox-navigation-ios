@@ -134,7 +134,7 @@ open class Placemark: NSObject, Codable {
     
     #if swift(>=4.2)
     #else
-    @objc open override var hashValue: Int {
+    @objc open override var hash: Int {
         return identifier.hashValue
     }
     #endif

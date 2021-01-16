@@ -251,7 +251,7 @@ extension CarPlayManager: CPApplicationDelegate {
         return closeButton
     }
 
-    public func resetPanButtons(_ mapTemplate: CPMapTemplate) {
+    @objc public func resetPanButtons(_ mapTemplate: CPMapTemplate) {
         if mapTemplate.isPanningInterfaceVisible, let mapButtons = defaultMapButtons {
             mapTemplate.mapButtons = mapButtons
             mapTemplate.dismissPanningInterface(animated: false)
