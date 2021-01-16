@@ -54,7 +54,7 @@ public class CarPlayManager: NSObject {
 
     public fileprivate(set) var mainMapTemplate: CPMapTemplate?
     public fileprivate(set) weak var currentNavigator: CarPlayNavigationViewController?
-    public static let CarPlayWaypointKey: String = "MBCarPlayWaypoint"
+    @objc public static let CarPlayWaypointKey: String = "MBCarPlayWaypoint"
     
     private var defaultMapButtons: [CPMapButton]?
 
@@ -86,6 +86,14 @@ public class CarPlayManager: NSObject {
             currentNavigator?.styles = styles
         }
     }
+    
+    @objc public var carPlayMapViewController: CarPlayMapViewController? {
+        if let mapViewController = carWindow?.rootViewController as? CarPlayMapViewController {
+            return mapViewController
+        }
+        return nil
+    }
+
 
     /**
      Initializes a new CarPlay manager that manages a connection to the CarPlay
@@ -366,7 +374,8 @@ extension CarPlayManager: CPListTemplateDelegate {
         
         completionHandler()
     }
-    public func previewRoutes(to destination: Waypoint, completionHandler: @escaping CompletionHandler) {
+    
+    @objc public func previewRoutes(to destination: Waypoint, completionHandler: @escaping CompletionHandler) {
         
         guard let rootViewController = self.carWindow?.rootViewController as? CarPlayMapViewController,
             let userLocation = rootViewController.mapView.userLocation,

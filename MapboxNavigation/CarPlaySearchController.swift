@@ -3,6 +3,7 @@ import CarPlay
 import MapboxDirections
 
 @available(iOS 12.0, *)
+@objc(MBCarPlaySearchControllerDelegate)
 public protocol CarPlaySearchControllerDelegate: class {
     func previewRoutes(to waypoint: Waypoint, completionHandler: @escaping () -> Void)
     func resetPanButtons(_ mapTemplate: CPMapTemplate)
@@ -15,7 +16,7 @@ public protocol CarPlaySearchControllerDelegate: class {
  
  Messages declared in the `CPApplicationDelegate` protocol should be sent to this object in the containing application's application delegate. Implement `CarPlaySearchControllerDelegate` in the containing application and assign an instance to the `delegate` property of your `CarPlaySearchController` instance.
  
- - note: It is very important you have a single `CarPlaySearchController` instance at any given time. 
+ - note: It is very important you have a single `CarPlaySearchController` instance at any given time.
  */
 @available(iOS 12.0, *)
 @objc(MBCarPlaySearchController)
@@ -39,7 +40,7 @@ public class CarPlaySearchController: NSObject {
     /**
      The `CarPlaySearchController` delegate.
      */
-    public weak var delegate: CarPlaySearchControllerDelegate?
+    @objc public weak var delegate: CarPlaySearchControllerDelegate?
 
 }
 #else
