@@ -1,7 +1,6 @@
 #if canImport(CarPlay)
 import Foundation
 import CarPlay
-import MapboxGeocoder
 import MapboxDirections
 
 @available(iOS 12.0, *)
