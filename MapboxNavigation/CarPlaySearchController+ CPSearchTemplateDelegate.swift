@@ -1,4 +1,4 @@
-#if canImport(CarPlay) && canImport(MapboxGeocoder)
+#if canImport(CarPlay)
 import Foundation
 import CarPlay
 import MapboxGeocoder
