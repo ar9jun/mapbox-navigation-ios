@@ -72,8 +72,8 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
         delegate?.previewRoutes(to: destinationWaypoint, completionHandler: completionHandler)
     }
     
-    public func searchTemplateButton(searchTemplate: CPSearchTemplate, interfaceController: CPInterfaceController, traitCollection: UITraitCollection) -> CPBarButton {
-        
+    @objc public func searchTemplateButton(searchTemplate: CPSearchTemplate, interfaceController: CPInterfaceController, traitCollection: UITraitCollection) -> CPBarButton {
+
         let searchTemplateButton = CPBarButton(type: .image) { [weak self] button in
             guard let strongSelf = self else {
                 return
