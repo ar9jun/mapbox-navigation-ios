@@ -399,7 +399,7 @@ extension CarPlayManager: CPListTemplateDelegate {
         let name = NSLocalizedString("CARPLAY_CURRENT_LOCATION", bundle: .mapboxNavigation, value: "Current Location", comment: "Name of the waypoint associated with the current location")
         let origin = Waypoint(location: location, heading: userLocation.heading, name: name)
         
-        let allWaypoints: [Waypoint] = [origin]
+        var allWaypoints: [Waypoint] = [origin]
         allWaypoints.append(contentsOf: waypoints)
         
         let options = NavigationRouteOptions(waypoints: allWaypoints)
