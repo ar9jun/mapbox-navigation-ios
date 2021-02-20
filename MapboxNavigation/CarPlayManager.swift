@@ -389,7 +389,7 @@ extension CarPlayManager: CPListTemplateDelegate {
         previewRoutes(between: [origin, destination], completionHandler: completionHandler)
     }
     
-    public func previewRoutes(between waypoints: [Waypoint], completionHandler: @escaping CompletionHandler) {
+    @objc public func previewRoutes(between waypoints: [Waypoint], completionHandler: @escaping CompletionHandler) {
         let options = NavigationRouteOptions(waypoints: waypoints)
         previewRoutes(for: options, completionHandler: completionHandler)
     }
