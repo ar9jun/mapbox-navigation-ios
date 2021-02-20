@@ -21,13 +21,14 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
     public func searchTemplate(_ searchTemplate: CPSearchTemplate, updatedSearchText searchText: String, completionHandler: @escaping ([CPListItem]) -> Void) {
         
         recentSearchText = searchText
-                
+
+        // Append recent searches
+        var allItems = recentSearches(searchText)
+
         // Search for placemarks using MapboxGeocoder.swift
         let shouldSearch = searchText.count > 2
         if shouldSearch {
             delegate?.searchTemplate(searchTemplate, updatedSearchText: searchText, completionHandler: { (items) in
-                // Append recent searches
-                var allItems = recentSearches(searchText)
                 allItems.append(items)
 
                 let options = CarPlaySearchController.forwardGeocodeOptions(searchText)
