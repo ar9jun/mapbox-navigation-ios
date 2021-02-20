@@ -21,28 +21,31 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
     public func searchTemplate(_ searchTemplate: CPSearchTemplate, updatedSearchText searchText: String, completionHandler: @escaping ([CPListItem]) -> Void) {
         
         recentSearchText = searchText
-        
-        // Append recent searches
-        var items = recentSearches(searchText)
-        
+                
         // Search for placemarks using MapboxGeocoder.swift
         let shouldSearch = searchText.count > 2
         if shouldSearch {
-            
-            let options = CarPlaySearchController.forwardGeocodeOptions(searchText)
-            Geocoder.shared.geocode(options, completionHandler: { [weak self] (placemarks, attribution, error) in
-                guard let strongSelf = self else { return }
-                guard let placemarks = placemarks else {
-                    completionHandler(strongSelf.resultsOrNoResults(items, limit: CarPlaySearchController.MaximumInitialSearchResults))
-                    return
-                }
-                
-                let results = placemarks.map { $0.listItem() }
-                items.append(contentsOf: results)
-                completionHandler(strongSelf.resultsOrNoResults(results, limit: CarPlaySearchController.MaximumInitialSearchResults))
+            delegate?.searchTemplate(searchTemplate, updatedSearchText: searchText, completionHandler: { (items) in
+                // Append recent searches
+                var allItems = items.append(recentSearches(searchText))
+
+                let options = CarPlaySearchController.forwardGeocodeOptions(searchText)
+                Geocoder.shared.geocode(options, completionHandler: { [weak self] (placemarks, attribution, error) in
+                    guard let strongSelf = self else { return }
+                    guard let placemarks = placemarks else {
+                        completionHandler(strongSelf.resultsOrNoResults(allItems, limit: CarPlaySearchController.MaximumInitialSearchResults))
+                        return
+                    }
+                    
+                    let results = placemarks.map { $0.listItem() }
+                    allItems.append(contentsOf: results)
+                    completionHandler(strongSelf.resultsOrNoResults(allItems, limit: CarPlaySearchController.MaximumInitialSearchResults))
+                })
             })
             
         } else {
+            var items = recentSearches(searchText)
+
             completionHandler(resultsOrNoResults(items, limit: CarPlaySearchController.MaximumInitialSearchResults))
         }
     }

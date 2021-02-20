@@ -10,6 +10,7 @@ public protocol CarPlaySearchControllerDelegate: class {
     func pushTemplate(_ template: CPTemplate, animated: Bool)
     func popTemplate(animated: Bool)
     func searchTemplate(_ searchTemplate: CPSearchTemplate, didSelectListItem item: CPListItem, completionHandler: @escaping () -> Void)
+    func searchTemplate(_ searchTemplate: CPSearchTemplate, updatedSearchText searchText: String, completionHandler: @escaping ([CPListItem]) -> Void)
 }
 
 /**
