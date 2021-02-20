@@ -63,20 +63,26 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
     }
     
     public func searchTemplate(_ searchTemplate: CPSearchTemplate, selectedResult item: CPListItem, completionHandler: @escaping () -> Void) {
-        guard let userInfo = item.userInfo as? [String: Any],
-            let placemark = userInfo[CarPlaySearchController.CarPlayGeocodedPlacemarkKey] as? GeocodedPlacemark,
-            let location = placemark.location else {
-                completionHandler()
-                return
-        }
-        
-        CarPlaySearchController.recentItems.add(RecentItem(placemark))
-        CarPlaySearchController.recentItems.save()
-        
-        let destinationWaypoint = Waypoint(location: location, heading: nil, name: placemark.formattedName)
-        
-        delegate?.searchTemplate(searchTemplate, didSelectListItem: item, completionHandler: completionHandler)
-//        delegate?.previewRoutes(to: destinationWaypoint, completionHandler: completionHandler)
+        if let userInfo = item.userInfo as? [String : Any] {
+            if let placemark = userInfo[CarPlaySearchController.CarPlayGeocodedPlacemarkKey] as? GeocodedPlacemark {
+                guard let location = placemark.location else {
+                    completionHandler()
+                    return
+                }
+
+                CarPlaySearchController.recentItems.add(RecentItem(placemark))
+                CarPlaySearchController.recentItems.save()
+
+                delegate?.searchTemplate(searchTemplate, didSelectListItem: item, completionHandler: completionHandler)
+
+            } else { //SircaPlaceData
+                delegate?.searchTemplate(searchTemplate, didSelectListItem: item, completionHandler: completionHandler)
+            }
+            
+        } else {
+            completionHandler()
+            return;
+        }                
     }
     
     @objc public func searchTemplateButton(searchTemplate: CPSearchTemplate, interfaceController: CPInterfaceController, traitCollection: UITraitCollection) -> CPBarButton {
