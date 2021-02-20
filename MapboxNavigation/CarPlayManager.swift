@@ -389,6 +389,24 @@ extension CarPlayManager: CPListTemplateDelegate {
         previewRoutes(between: [origin, destination], completionHandler: completionHandler)
     }
     
+    @objc public func previewRoutes(betweenAll waypoints: [Waypoint], completionHandler: @escaping CompletionHandler) {
+        guard let rootViewController = self.carWindow?.rootViewController as? CarPlayMapViewController,
+            let userLocation = rootViewController.mapView.userLocation,
+            let location = userLocation.location else {
+                completionHandler()
+                return
+        }
+        let name = NSLocalizedString("CARPLAY_CURRENT_LOCATION", bundle: .mapboxNavigation, value: "Current Location", comment: "Name of the waypoint associated with the current location")
+        let origin = Waypoint(location: location, heading: userLocation.heading, name: name)
+        
+        let allWaypoints: [Waypoint] = [origin]
+        allWaypoints.append(contentsOf: waypoints)
+        
+        let options = NavigationRouteOptions(waypoints: allWaypoints)
+        previewRoutes(for: options, completionHandler: completionHandler)
+    }
+
+    
     @objc public func previewRoutes(between waypoints: [Waypoint], completionHandler: @escaping CompletionHandler) {
         let options = NavigationRouteOptions(waypoints: waypoints)
         previewRoutes(for: options, completionHandler: completionHandler)
