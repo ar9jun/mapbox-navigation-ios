@@ -9,6 +9,7 @@ public protocol CarPlaySearchControllerDelegate: class {
     func resetPanButtons(_ mapTemplate: CPMapTemplate)
     func pushTemplate(_ template: CPTemplate, animated: Bool)
     func popTemplate(animated: Bool)
+    func searchTemplate(_ searchTemplate: CPSearchTemplate, didSelectListItem item: CPListItem, completionHandler: @escaping () -> Void)
 }
 
 /**
