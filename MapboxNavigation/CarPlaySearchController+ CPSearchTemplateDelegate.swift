@@ -29,7 +29,7 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
         let shouldSearch = searchText.count > 2
         if shouldSearch {
             delegate?.searchTemplate(searchTemplate, updatedSearchText: searchText, completionHandler: { (items) in
-                allItems.append(items)
+                allItems.append(contentsOf: items)
 
                 let options = CarPlaySearchController.forwardGeocodeOptions(searchText)
                 Geocoder.shared.geocode(options, completionHandler: { [weak self] (placemarks, attribution, error) in
