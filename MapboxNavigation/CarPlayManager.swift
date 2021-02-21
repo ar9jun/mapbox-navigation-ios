@@ -600,7 +600,7 @@ extension CarPlayManager: CPMapTemplateDelegate {
     }
 
     @objc public func endNavigation() {
-        self?.currentNavigator?.exitNavigation(byCanceling: true)
+        self.currentNavigator?.exitNavigation(byCanceling: true)
     }
     
     public func mapTemplate(_ mapTemplate: CPMapTemplate, selectedPreviewFor trip: CPTrip, using routeChoice: CPRouteChoice) {
