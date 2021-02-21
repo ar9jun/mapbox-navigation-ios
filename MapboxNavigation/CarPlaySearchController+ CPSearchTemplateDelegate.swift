@@ -42,7 +42,7 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
                     var results = placemarks.map { $0.listItem() }
                     if (results.count >= 3) {
                         allItems.insert(contentsOf: results[0...2], at: 0)
-                        results.removeFirst(2)
+                        results.removeFirst(3)
                     } else {
                         allItems.insert(contentsOf: results, at: 0)
                         results.removeAll()
