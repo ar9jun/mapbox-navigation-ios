@@ -40,13 +40,14 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
                     }
                     
                     var results = placemarks.map { $0.listItem() }
-                    if (results.count >= 3) {
-                        allItems.insert(contentsOf: results[0...2], at: 0)
-                        results.removeFirst(3)
+                    if (results.count >= 2) {
+                        allItems.insert(contentsOf: results[0...1], at: 0)
+                        results.removeFirst(2)
                     } else {
                         allItems.insert(contentsOf: results, at: 0)
                         results.removeAll()
                     }
+                    
                     allItems.append(contentsOf: results)
                     completionHandler(strongSelf.resultsOrNoResults(allItems, limit: CarPlaySearchController.MaximumInitialSearchResults))
                 })
