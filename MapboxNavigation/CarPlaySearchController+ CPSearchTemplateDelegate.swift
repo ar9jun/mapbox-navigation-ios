@@ -39,7 +39,11 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
                         return
                     }
                     
-                    let results = placemarks.map { $0.listItem() }
+                    var results = placemarks.map { $0.listItem() }
+                    if (results.count >= 2) {
+                        allItems.insert(contentsOf: results[0...2], at: 0)
+                        results.removeFirst(2)
+                    }
                     allItems.append(contentsOf: results)
                     completionHandler(strongSelf.resultsOrNoResults(allItems, limit: CarPlaySearchController.MaximumInitialSearchResults))
                 })
@@ -82,7 +86,7 @@ extension CarPlaySearchController: CPSearchTemplateDelegate {
         } else {
             completionHandler()
             return;
-        }                
+        }
     }
     
     @objc public func searchTemplateButton(searchTemplate: CPSearchTemplate, interfaceController: CPInterfaceController, traitCollection: UITraitCollection) -> CPBarButton {
